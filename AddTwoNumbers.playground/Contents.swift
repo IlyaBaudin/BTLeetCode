@@ -1,3 +1,4 @@
+import Foundation
 
 // * Definition for singly-linked list.
 public class ListNode {
@@ -20,67 +21,79 @@ public class ListNode {
 }
 
 extension ListNode {
-    func representValue() -> Int {
-        if let next = next {
-            return Int("\(next.representValue())\(val)") ?? 0
-        } else {
-            return val
-        }
+    
+    /// Represent `ListNode` value as a `String`
+    /// - Returns: string representation for ListNode in human readable format
+    internal func repStringValue() -> String {
+        guard let next else { return String(val) }
+        let nextValue = next.repStringValue()
+        let currentValue = String(val)
+        return nextValue + currentValue
     }
 }
 
 class Solution {
     func addTwoNumbers(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {
-        guard let node1 = l1, let node2 = l2 else { return nil }
+        // save nodes into variables
+        var node1 = l1
+        var node2 = l2
         
-        var node1Value = node1.representValue()
-        var node2Value = node2.representValue()
+        // create first result node (by reference will be changed in loop)
+        var temp: ListNode? = ListNode(0)
+        var current = temp
+        // aggregation variable
+        var carry = 0
         
-        var node1ValueStr = String(node1Value)
-        var node2ValueStr = String(node2Value)
-        
-        let difference = node1ValueStr.count - node2ValueStr.count
-        if difference < 0 {
-            let diffStr = String(repeating: "0", count: -difference)
-            node2ValueStr = node2ValueStr + diffStr
-        } else if difference > 0 {
-            let diffStr = String(repeating: "0", count: difference)
-            node1ValueStr = node1ValueStr + diffStr
-        }
-        
-        node1Value = Int(node1ValueStr) ?? 0
-        node2Value = Int(node2ValueStr) ?? 0
-        
-        
-        let sum = node1Value + node2Value
-        let sumStr = String(sum)
-        
-        var lastNode: ListNode?
-        for eachItem in sumStr {
-            let intVal = Int(String(eachItem)) ?? 0
+        // go through all nodes
+        while node1 != nil || node2 != nil || carry > 0 {
             
-            if lastNode == nil {
-                lastNode = ListNode(intVal)
-            } else {
-                let newLastNode = ListNode(intVal, lastNode)
-                lastNode = newLastNode
+            var sum = 0
+            
+            // add to sum value from first node and `switch` node1 to next value
+            if node1 != nil {
+                sum += node1!.val
+                node1 = node1?.next
             }
             
-            print(eachItem)
+            // add to sum value from second node and `switch` node2 to next value
+            if node2 != nil {
+                sum += node2!.val
+                node2 = node2?.next
+            }
+            
+            // add to sum carry value (depends on sum result on previous step)
+            sum += carry
+            // calculate place number to save carry for next iteration
+            carry = sum / 10
+            // save value in list
+            current?.next = ListNode(sum % 10)
+            // rewrite current list with intermediate result
+            current = current?.next
         }
-        return lastNode
+        
+        return temp?.next
     }
 }
 
-let n3 = ListNode(3)
-let n2 = ListNode(4, n3)
-let n1 = ListNode(2, n2)
+//[1,0,0,0,0,0,0,0,0,0,1]
+let n10 = ListNode(1)
+let n9 = ListNode(0, n10)
+let n8 = ListNode(0, n9)
+let n7 = ListNode(0, n8)
+let n6 = ListNode(0, n7)
+let n5 = ListNode(0, n6)
+let n4 = ListNode(0, n5)
+let n3 = ListNode(0, n4)
+let n2 = ListNode(0, n3)
+let n1 = ListNode(0, n2)
+let n = ListNode(1, n1)
 
-
-let l3 = ListNode(4)
-let l2 = ListNode(6, l3)
-let l1 = ListNode(5, l2)
+//[5,6,4]
+let l2 = ListNode(4)
+let l1 = ListNode(6, l2)
+let l = ListNode(5, l1)
 
 let s = Solution()
-s.addTwoNumbers(n1, l1)
+let result = s.addTwoNumbers(l, n)
+result?.repStringValue()
 
