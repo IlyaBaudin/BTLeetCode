@@ -1,3 +1,5 @@
+import Foundation
+
 /**
  * Definition for singly-linked list.
  * public class ListNode {
@@ -17,37 +19,38 @@ public class ListNode {
     public init(_ val: Int, _ next: ListNode?) { self.val = val; self.next = next; }
 }
 
+extension ListNode: CustomStringConvertible {
+    public var description: String {
+        var result: [Int] = []
+        var current: ListNode? = self
+        while let node = current {
+            result.append(node.val)
+            current = node.next
+        }
+        return result.map(String.init).joined(separator: " -> ")
+    }
+}
+
 class Solution {
     
-    var resultList: ListNode?
-    
     func mergeTwoLists(_ list1: ListNode?, _ list2: ListNode?) -> ListNode? {
-        if list1 == nil && list2 == nil {
-            return resultList
-        }
-        
-        if list1 != nil && list2 != nil {
-            let list1Value = list1!.val
-            let list2Value = list2!.val
-            
-            if list1Value < list2Value {
-                resultList = ListNode(list1Value)
-                resultList?.next = mergeTwoLists(list1!.next, list2!)
-            } else {
-                resultList = ListNode(list2Value)
-                resultList?.next = mergeTwoLists(list1!, list2!.next)
-            }
-        }
-        
+        // If first list is empty, return second one
         if list1 == nil {
-            resultList?.next = mergeTwoLists(resultList, list2?.next)
+            return list2
         }
-        
+        // If second list is empty, return first one
         if list2 == nil {
-            resultList?.next = mergeTwoLists(resultList, list1?.next)
+            return list1
         }
         
-        return nil
+        // Compare the values and build the list recursively
+        if list1!.val < list2!.val {
+            list1!.next = mergeTwoLists(list1!.next, list2)
+            return list1
+        } else {
+            list2!.next = mergeTwoLists(list1, list2!.next)
+            return list2
+        }
     }
 }
 
@@ -65,4 +68,4 @@ list2_2.next = list2_3
 
 let solution = Solution()
 let result = solution.mergeTwoLists(list1_1, list2_1)
-print(result)
+print(result?.description ?? "")
